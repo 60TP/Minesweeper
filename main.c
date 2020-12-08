@@ -1,4 +1,5 @@
 #include<stdio.h>
+#include "inputbox.h"
 #include "acllib.h"
 #include<time.h>
 #include<stdlib.h>
@@ -37,12 +38,12 @@ int is_shown[NUM][NUM]={0};
 
 time_t start,end;
 
-const int timerID1=1;
+const int timerID1=1,timerID2=2;
 int timer=0;
-
+int timer_2=0;
 int mine_left;
 
-//int click_times=0;
+int click_times=0;
 
 void cal_mine(int i,int j)
 {
@@ -82,7 +83,10 @@ void cal_mine(int i,int j)
 int numofmines=0;
 int iszero[NUM][NUM]={0};
 
-
+//void resetup(int timerID2)
+//{
+//		system("1.bat");
+//}
 
 void find_zero(int x,int y)
 {
@@ -307,6 +311,15 @@ void EVENT1(int x,int y,int bt,int event)
 					isfinished=1;
 					beginPaint();
 					setTextSize(48);
+//					if(click_times==1)
+//					{
+//						paintText(POSX,POSY+GAP*NUM/2,"已触发非酋保护,程序即将重启");
+//						TerminateProcess(GetCurrentProcess(), 0);
+////						registerTimerEvent(resetup);
+////						startTimer(timerID2,2000);
+//						system("1.bat");
+//					}
+//					else
 					paintText(POSX,POSY+GAP*NUM/2,"You failed!Try it again!");
 					endPaint();
 					mine_shown();
@@ -354,12 +367,23 @@ void EVENT1(int x,int y,int bt,int event)
 //		click_times++;
 		if(a>=0&&b>=0)
 		{
+			click_times++;
 			if(ismine[a][b]==-1)
 			{
 				beginPaint();
 				loadImage("mine.jpg",&img1);
 				putImage(&img1,POSX+GAP*a,POSY+GAP*b);
 				setTextSize(48);
+				if(click_times==1)
+					{
+						paintText(POSX,POSY+GAP*NUM/2,"已触发非酋保护,程序即将重启");
+//						
+//						registerTimerEvent(resetup);
+//						startTimer(timerID2,2000);
+						system("1.bat");
+						TerminateProcess(GetCurrentProcess(), 0);
+					}
+				else
 				paintText(POSX,POSY+GAP*NUM/2,"You failed!Try it again!");
 				
 				endPaint();
@@ -461,15 +485,11 @@ void Time_event(int timer1)
 	endPaint();
 }
 
-int resetup()
-{
-	
-}
+
 //main
 int Setup()
 {
 	initWindow("Minesweeper v1.0",DEFAULT,DEFAULT,720,720);
-	initConsole();
 	for(int i=0; i<=NUM; i++)
 	{
 		beginPaint();
@@ -478,15 +498,14 @@ int Setup()
 		endPaint();
 	}
 	
-	printf("Please enter the number of mines");
-	scanf("%d",&numofmines);
+	numofmines=inputbox();
 	while(numofmines<=0||numofmines>=NUM*NUM)
 	{
 		printf("The input data is illegal.Try it again.");
-		scanf("%d",numofmines);
+		numofmines=inputbox();
 	}
 	mine_left=numofmines;
-	
+	initConsole();
 	beginPaint();
 	loadImage("background.jpg",&img2);
 	for(int i=0; i<NUM; i++)
@@ -550,19 +569,20 @@ int Setup()
 			
 		}
 	}
-//	for(int i=0; i<NUM; i++)
-//	{
-//		for(int j=0; j<NUM; j++)
-//		{
-//			printf("%d ",ismine[j][i]);
-//		}
-//		printf("\n");
-//	}
-	ShowWindow(GetConsoleWindow(),SW_HIDE);
+	for(int i=0; i<NUM; i++)
+	{
+		for(int j=0; j<NUM; j++)
+		{
+			printf("%d ",ismine[j][i]);
+		}
+		printf("\n");
+	}
+//	ShowWindow(GetConsoleWindow(),SW_HIDE);
 //	start=clock();
 	startTimer(timerID1,1000);
 	registerMouseEvent(EVENT1);
 //	registerMouseEvent(testevent);
 	registerTimerEvent(Time_event);
+
 	return 0;
 };
